@@ -45,8 +45,14 @@ function P_s_i(P_s_ji::Float64,P_s_ii::Float64,elasticity::Float64)
 	P_s_i = (P_s_ji^(1-elasticity)+P_s_ii^(1-elasticity))^(1/(1-elasticity))
 	return P_s_i
 end
-## eq30
+## eq.30
 function free_entry(elasticity::Float64,entrycost::Float64)
 	y = (elasticity-1)*entrycost
 	return y
 end
+## terms in eq.34
+function tax_revenue(t_d_ji::Float64,t_u_ji::Float64,M_d_j::Float64,M_d_i::Float64,M_u_j::Float64,M_u_i::Float64,c_ji::Float64,c_ij::Float64,p_d_ji::Float64,p_d_ij::Float64,p_u_ji::Float64,p_u_ij::Float64,x_ji::Float64,x_ij::Float64,ν_d_ij::Float64,ν_u_ij::Float64)
+	tax_revenue = t_d_ji*M_d_j*c_ji*p_d_ji + t_u_ji*M_d_i*M_u_j*x_ji*p_u_ji - ν_d_ij*M_d_i*c_ij*p_d_ij - ν_u_ij*M_d_j*M_u_i*x_ij*p_u_ij
+	return tax_revenue
+end
+
