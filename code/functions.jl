@@ -11,7 +11,7 @@ function mc_d_i(α_d::Float64,w_i::Float64,P_u_i::Float64,A_d_i::Float64)
 	return mc_d_i
 end
 ## eq27.1
-function c_ji(w_i::Float64,L_i::Float64,T_i::Float64,t_d_ji::Float64,p_d_ji::Float64,σ,P_d_i::Float64)
+function c_ji(w_i::Float64,L_i::Float64,T_i::Float64,t_d_ji::Float64,p_d_ji::Float64,σ::Float64,P_d_i::Float64)
 	c_ji = (w_i*L_i+T_i) * P_d_i^(σ-1) * (1/((1+t_d_ji)*p_d_ji)^σ)
 	return c_ji
 end
@@ -49,10 +49,5 @@ end
 function free_entry(elasticity::Float64,entrycost::Float64)
 	y = (elasticity-1)*entrycost
 	return y
-end
-## terms in eq.34
-function tax_revenue(t_d_ji::Float64,t_u_ji::Float64,M_d_j::Float64,M_d_i::Float64,M_u_j::Float64,M_u_i::Float64,c_ji::Float64,c_ij::Float64,p_d_ji::Float64,p_d_ij::Float64,p_u_ji::Float64,p_u_ij::Float64,x_ji::Float64,x_ij::Float64,ν_d_ij::Float64,ν_u_ij::Float64)
-	tax_revenue = t_d_ji*M_d_j*c_ji*p_d_ji + t_u_ji*M_d_i*M_u_j*x_ji*p_u_ji - ν_d_ij*M_d_i*c_ij*p_d_ij - ν_u_ij*M_d_j*M_u_i*x_ij*p_u_ij
-	return tax_revenue
 end
 
