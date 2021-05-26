@@ -26,14 +26,8 @@ A_u_US = 1.0;
 
 # Other assumptions
 # Consider the zero-tariff eqlm
-t_d_US_RoW = 0.0;
 t_d_RoW_US = 0.0;
-t_d_US_US = 0.0;
-t_d_RoW_RoW = 0.0;
-t_u_US_RoW = 0.0;
 t_u_RoW_US = 0.0;
-t_u_US_US = 0.0;
-t_u_RoW_RoW = 0.0;
 
 # Assume no export subsidy ν=0
 ν = 0.0;
