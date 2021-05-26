@@ -1,5 +1,5 @@
 # Take parameters from the draft, solve for the zero-tariff eqlm.
-using JLD
+using JLD, Random
 include("solve_eq.jl")
 
 # Parameters taken from the draft
@@ -46,8 +46,19 @@ y_u_RoW = free_entry(θ,f_u);
 ell_u_US  = ell_u_i(f_u,y_u_US,A_u_US);
 ell_u_RoW = ell_u_i(f_u,y_u_RoW,A_u_RoW);
 
+# Does results vary with initial guess?
+function verify_stability(random_seed::Int64)
+	Random.seed!(random_seed)
+	endogenous_value = (nlsolve(f!,randn(8)).zero) .^2
+	return endogenous_value
+end
+
+verify_stability(1)
+verify_stability(2)
+verify_stability(14)
+
 # Solve the eqlm
-sol = nlsolve(f!,vcat(ones(6),zeros(2)));
+sol = nlsolve(f!,randn(8));
 endogenous_value = sol.zero .^2;
 w_US = endogenous_value[1];
 w_RoW = endogenous_value[2];
