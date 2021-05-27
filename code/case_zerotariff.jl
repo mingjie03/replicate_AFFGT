@@ -1,5 +1,5 @@
 # Take parameters from the draft, solve for the zero-tariff eqlm.
-using JLD, Random
+using JLD, Random, StatsBase
 include("solve_eq.jl")
 
 # Parameters taken from the draft
@@ -47,17 +47,34 @@ ell_u_US  = ell_u_i(f_u,y_u_US,A_u_US);
 ell_u_RoW = ell_u_i(f_u,y_u_RoW,A_u_RoW);
 
 # Does results vary with initial guess?
-function verify_stability(random_seed::Int64)
-	Random.seed!(random_seed)
+simulation_counts = 1000;
+results = zeros(simulation_counts,7);
+for i in 1:simulation_counts
+	Random.seed!(i)
 	endogenous_value = (nlsolve(f!,randn(8)).zero) .^2
-	return endogenous_value
+	results[i,1] = endogenous_value[2] ./endogenous_value[1] # relative wage to US
+	results[i,2] = endogenous_value[3] # M^d_US
+	results[i,3] = endogenous_value[4] # M^u_US
+	results[i,4] = endogenous_value[5] # M^d_RoW
+	results[i,5] = endogenous_value[6] # M^u_RoW
+	results[i,6] = endogenous_value[7] # T_US
+	results[i,7] = endogenous_value[8] # T_RoW
 end
 
-verify_stability(1)
-verify_stability(2)
-verify_stability(14)
+results_summary = zeros(7,4);
+for col in 1:7
+	results_summary[col,1]=percentile(results[:,col],5)
+	results_summary[col,2]=percentile(results[:,col],50)
+	results_summary[col,3]=percentile(results[:,col],75)
+	results_summary[col,4]=percentile(results[:,col],90)
+end
 
-# Solve the eqlm
+# When initial guess close to one, results are wrong. T is not small enough to be treated as zero.
+nlsolve(f!,ones(8)).zero .^2
+nlsolve(f!,fill(0.99,8)).zero .^2
+
+# Save one simulation
+Random.seed!(1)
 sol = nlsolve(f!,randn(8));
 endogenous_value = sol.zero .^2;
 w_US = endogenous_value[1];

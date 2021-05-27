@@ -1,13 +1,12 @@
 # Case: optimal tariff
 # Method: given tariff -> solve for the eqlm -> calculate the implied U -> find the max U
 
-using Optim
-using JLD
-
-df = load("../output/zerotariff_endogenous_value.jld") # use zero-tariff eqlm as initial guess (still fail)
+using Optim,JLD,Random,StatsBase
 
 include("solve_eq.jl")
 include("revert_solve_eq.jl")
+
+df = load("../output/zerotariff_endogenous_value.jld")
 
 # Parameters taken from the draft
 ## Fixed values
@@ -76,22 +75,33 @@ function cal_util(t_d::Float64,t_u::Float64,sol_guess::Array{Float64,1})
 	U_H = (w_US*L_US+T_US)/P_d_US
 	return -U_H
 end
-guess_opttariff = vcat(df["w_US"],df["w_RoW"],df["M_d_US"],df["M_u_US"],df["M_d_RoW"],df["M_u_RoW"],df["T_US"],df["T_RoW"])
-
-# # results rely heavilty on the initial guess, why?
-# cal_util(0.4,0.2,guess_opttariff) # 0.031
-# cal_util(0.4,0.2,ones(8)) # 0.079
 
 function optim_util(x)
 	return cal_util(x[1]^2,x[2]^2,guess_opttariff)
 end
 
-lb = [0.0,0.0];
-ub = [1.0,1.0];
-res1 = optimize(optim_util,lb,ub,[0.5,0.5])
-Optim.minimizer(res1) .^2 # t_d=0.21, t_u=0.26
+simulation_count = 1000;
+results = zeros(simulation_count,3);
+for i in 1:simulation_count
+	Random.seed!(i)
+	sol = optimize(optim_util,randn(2));
+	tariff = Optim.minimizer(sol) .^2
+	results[i,1] = tariff[1]
+	results[i,2] = tariff[2]
+	results[i,3] = -Optim.minimum(sol)
+end
 
-res2 = optimize(optim_util,lb,ub,[0.8,0.2])
-Optim.minimizer(res2) .^2 # t_d=0.28, t_u=0.09
-
+results_summary = zeros(3,10);
+for col in 1:3
+	results_summary[col,1] = minimum(results[:,col])
+	results_summary[col,2] = percentile(results[:,col],5)
+	results_summary[col,3] = percentile(results[:,col],10)
+	results_summary[col,4] = percentile(results[:,col],25)
+	results_summary[col,5] = percentile(results[:,col],50)
+	results_summary[col,6] = mean(results[:,col])
+	results_summary[col,7] = percentile(results[:,col],75)
+	results_summary[col,8] = percentile(results[:,col],90)
+	results_summary[col,9] = percentile(results[:,col],95)
+	results_summary[col,10] = maximum(results[:,col])
+end
 
